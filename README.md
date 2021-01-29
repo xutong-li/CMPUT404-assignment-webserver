@@ -18,6 +18,13 @@ server.py contains contributions from:
 * Eddie Antonio Santos
 * Jackson Z Chang
 * Mandy Meindersma 
+* Xutong Li (Edited for CMPUT404 21W Assignment1)
+
+Assignment Collaboration:
+Kay Song (qsong), 
+Peiran Yu (pyu),
+Yanlin Chen (yanlin2),
+Dongheng Li (dongheng).
 
 But the server.py example is derived from the python documentation
 examples thus some of the code is Copyright © 2001-2013 Python
