@@ -1,7 +1,8 @@
 # coding: utf-8
+# Edited by Xutong Li for CMPUT404 W21 Assignment 1
 
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
-# Edited by Xutong Li for CMPUT404 W21 Assignment 1
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -27,13 +28,6 @@
 import socketserver
 import logging
 import os
-
-
-def get_content(file):
-    f = open(file, 'r')
-    content = f.read()
-    f.close()
-    return content
 
 
 class MyWebServer(socketserver.BaseRequestHandler):
@@ -81,29 +75,33 @@ class MyWebServer(socketserver.BaseRequestHandler):
         html_content = ""
         # if the local path directs to files under ./www/deep/
         if os.path.isdir(local_path):
-            print("Requesting the local directory: " + str(local_path) + "\n")
             for file in os.listdir(local_path):
                 file_name = str(file).lower()
                 if file_name[-5:].lower() == '.html' and self.path[-1] == "/":
                     html_file_name = "www" + str(self.path) + file_name
-                    html_content = get_content(html_file_name)
+                    html_content = self.get_content(html_file_name)
                 if file_name[-4:].lower() == '.css':
                     css_file_name = "www" + str(self.path) + "/" + file_name
-                    css_content = get_content(css_file_name)
+                    css_content = self.get_content(css_file_name)
 
-        # if the local path directs to files under www/
+        # else the local path will directs to files under www/
         elif os.path.isfile(local_path):
-            print("Requesting the local file: " + str(local_path) + "\n")
             file_name = str(self.path)
             if file_name[-5:].lower() == '.html':
                 html_file_name = "www/" + str(self.path)
-                html_content = get_content(html_file_name)
+                html_content = self.get_content(html_file_name)
             if file_name[-4:].lower() == '.css':
                 css_file_name = "www/" + str(self.path)
-                css_content = get_content(css_file_name)
+                css_content = self.get_content(css_file_name)
 
         # return the requested file content
         return css_content, html_content
+
+    def get_content(self, file):
+        f = open(file, 'r')
+        content = f.read()
+        f.close()
+        return content
 
     # https://pymotw.com/2/socket/binary.html
     # https://www.w3.org/International/articles/http-charset/index
