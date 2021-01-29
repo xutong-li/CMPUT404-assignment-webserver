@@ -24,7 +24,6 @@
 # run: python freetests.py
 
 # try: curl -v -X GET http://127.0.0.1:8080/
-
 import socketserver
 import logging
 import os
@@ -40,14 +39,14 @@ def get_content(file):
 class MyWebServer(socketserver.BaseRequestHandler):
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        print("Got a request of: %s\n" % self.data)
+        print("Got a request of: %s" % self.data)
         # self.request.sendall(bytearray("OK",'utf-8'))
         self.method = self.get_method(self.data)
         self.path = self.get_path(self.data)
         self.host = self.get_host(self.data)
         # print(self.method, self.path, self.host)
 
-        # status_code_405
+        # 1. status_code_405
         if self.method != "GET":
             self.status_code_405()
             return
@@ -57,20 +56,21 @@ class MyWebServer(socketserver.BaseRequestHandler):
         # handle the path
         css_content, html_content = self.handle_path(self.localpath)
 
-        # status_code_301
+        # handle other status:
+        # 2. status_code_301
         if os.path.isdir("./www" + self.path) and self.path[-1] != "/":
             # logging.warning("***")
             self.status_code_301()
 
-        # status_code_200
+        # 3. status_code_200
         elif html_content != "":
             self.status_code_200("html", html_content)
 
-        # status_code_200
+        # 4. status_code_200
         elif css_content != "":
             self.status_code_200("css", css_content)
 
-        # status_code_404
+        # 5. status_code_404
         else:
             self.status_code_404()
             return
@@ -81,7 +81,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         html_content = ""
         # if the local path directs to files under ./www/deep/
         if os.path.isdir(local_path):
-            print("Request a directory: " + str(local_path))
+            print("Requesting the local directory: " + str(local_path) + "\n")
             for file in os.listdir(local_path):
                 file_name = str(file).lower()
                 if file_name[-5:].lower() == '.html' and self.path[-1] == "/":
@@ -93,7 +93,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
         # if the local path directs to files under www/
         elif os.path.isfile(local_path):
-            print("Request a file: " + str(local_path))
+            print("Requesting the local file: " + str(local_path) + "\n")
             file_name = str(self.path)
             if file_name[-5:].lower() == '.html':
                 html_file_name = "www/" + str(self.path)
@@ -106,6 +106,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         return css_content, html_content
 
     # https://pymotw.com/2/socket/binary.html
+    # https://www.w3.org/International/articles/http-charset/index
     def status_code_200(self, content_type, content):
         self.request.sendall(bytearray("HTTP/1.1 200 OK\r\n", "utf-8"))
         self.request.sendall(bytearray("Content-Type: text/%s; charset=utf-8\r\n\r\n"
